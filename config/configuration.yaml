@@ -1,0 +1,245 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Koushik Family Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: 37.2803
+  longitude: -121.9567
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 63
+  # metric for Metric, imperial for Imperial
+  unit_system: imperial
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: America/Los_Angeles
+
+  customize:
+    sensor.time_date_date:
+      icon: mdi:calendar
+      friendly_name: "Date"
+    sensor.time_date_time:
+      icon: mdi:clock
+      friendly_name: "Local Time"
+    sensor.sensehat_temperature:
+      icon: mdi:thermometer
+      friendly_name: "Inside Temperature"
+    sensor.yweather_temperature:
+      icon: mdi:thermometer
+      friendly_name: "Outside Temperature"
+
+# Show links to resources in log and frontend
+#introduction:
+
+# Enables the frontend
+frontend:
+
+# Enables configuration UI
+config:
+
+http:
+  #api_password: abc123
+  development: 1
+  # Uncomment this if you are using SSL or running in Docker etc
+  # base_url: example.duckdns.org:8123
+
+# Checks for available updates
+updater:
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time.
+history:
+
+# View all events in a logbook
+logbook:
+
+# Track the sun
+sun:
+
+
+# Wemo Switch(es)
+wemo:
+  static:
+    - 192.168.1.71
+    
+group:
+  Essentials:
+    name: Essentials
+    entities:
+      - sensor.yweather_temperature
+      - sensor.sensehat_temperature
+      - sensor.time_date_date
+      - sensor.time_date_time
+
+  LivingRoom:
+    name: Living Room
+      - group.sense_hat
+
+# Weather Prediction
+sensor:
+
+  - platform: time_date
+    display_options:
+      - 'date'
+      - 'time'
+
+  - platform: worldclock
+    time_zone: Asia/Kolkata
+    name: IST
+
+  - platform: yweather
+    monitored_conditions:
+      - weather
+      - weather_current
+      - temperature
+
+  - platform: sensehat
+    display_options:
+        - temperature
+
+  - platform: template
+    sensors:
+      sensehat_temperature:
+        value_template: '{{ states.sensor.temperature.state | round(1) }}'
+        unit_of_measurement: '°F'
+      time_date_date:
+        value_template: '{{ states.sensor.date.state | round(1) }}'
+        unit_of_measurement: ''
+      time_date_time:
+        value_template: '{{ states.sensor.time.state | round(1) }}'
+        unit_of_measurement: ''
+
+
+#Media Players
+#media_player: 
+#  - platform: cast
+
+# Text to speech
+tts:
+  platform: google
+
+
+device_tracker:
+
+  - platform: locative
+
+  - platform: nmap_tracker
+    hosts: 
+     - 192.168.1.93
+     - 192.168.1.69
+    home_interval: 10
+
+input_select:
+  who_cooks:
+    name: Who cooks today
+    options:
+     - Paulus
+     - Anne Therese
+    initial: Anne Therese
+    icon: mdi:panda
+  living_room_preset:
+    options:
+      - Visitors
+      - Visitors with kids
+      - Home Alone
+
+
+
+scene:
+  - name: Example1
+    service:
+    entities:
+      input_select.who_cooks:
+        option: Paulus
+
+
+
+input_boolean:
+  notify_home:
+    name: Notify when someone arrives home
+    initial: off
+    icon: mdi:car
+
+#    entity_id: group.all_devices
+#    platform: sun
+#    event: sunset
+
+
+automation:
+  alias: turn on living room lights when Sathya walk's in
+  trigger:
+    platform: state
+    entity_id: device_tracker.sathyasiphone
+    from: 'not_home'
+    to: 'home'
+    state: 'home'
+  condition:
+    condition: state
+    entity_id: device_tracker.sathyasiphone
+    state: 'home'
+  action:
+    service: switch.turn_on
+    entity_id: switch.living_room
+
+automation 2:
+  alias: turn on living room light when Laskhmi walk's in
+  trigger:
+    platform: state
+    entity_id: device_tracker.lakshmisiphone
+    from: 'not_home'
+    to: 'home'
+    state: 'home'
+  condition:
+    condition: state
+    entity_id: device_tracker.lakshmisiphone
+    state: 'home'
+  action:
+    service: switch.turn_on
+    entity_id: switch.living_room
+
+automation 3:
+  alias: turn off the living room lights when walk-out
+  trigger:
+    platform: state
+    entity_id: group.all_devices
+    from: 'home'
+    to: 'not_home'
+    state: 'not_home'
+  condition:
+    condition: state
+    entity_id: group.all_devices
+    state: 'not_home'
+  action:
+    service: switch.turn_off
+    entity_id: switch.living_room
+
+#  alias: example automation
+#  trigger:
+#    platform: event
+#    event_type: MY_CUSTOM_EVENT
+#  action:
+#    service: input_select.select_option
+#    data:
+#          entity_id: input_select.who_cooks
+#          option: Paulus
+
+#  alias: Arriving home
+#  trigger:
+#    platform: state
+#    entity_id: binary_sensor.motion_garage
+#    to: 'on'
+#  condition:
+#    condition: state
+#    entity_id: input_boolean.notify_home
+#    state: 'on'
+#  action:
+#    service: notify.pushbullet
+#    data:
+#      title: ""
+#      message: "Honey, I'm home!"
+
+light:
+  platform: hue
+  host: 192.168.1.78

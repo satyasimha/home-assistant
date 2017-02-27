@@ -8,7 +8,7 @@ __version__ = '{}.{}'.format(__short_version__, PATCH_VERSION)
 REQUIRED_PYTHON_VER = (3, 4, 2)
 REQUIRED_PYTHON_VER_WIN = (3, 5, 2)
 
-PROJECT_NAME = 'Home Assistant'
+PROJECT_NAME = 'Sphynx Home Automation'
 PROJECT_PACKAGE_NAME = 'homeassistant'
 PROJECT_LICENSE = 'Apache License 2.0'
 PROJECT_AUTHOR = 'The Home Assistant Authors'

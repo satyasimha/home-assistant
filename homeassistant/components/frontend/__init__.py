@@ -27,7 +27,7 @@ MANIFEST_JSON = {
     "display": "standalone",
     "icons": [],
     "lang": "en-US",
-    "name": "Home Assistant",
+    "name": "Sphynx Home Automation",
     "short_name": "Assistant",
     "start_url": "/",
     "theme_color": "#03A9F4"
